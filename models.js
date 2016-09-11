@@ -15,8 +15,12 @@ exports.attachPostCategory = (postId, categoryId, existingTransaction) => {
     return db.insert({ post_id: postId, category_id: categoryId }).into(TABLES.CATEGORIES_POSTS).returning('*');
 };
 
+exports.getCategoriesByTitleList = (titleList) => {
+    return db.select('*').from(TABLES.CATEGORIES).whereIn('title', titleList);
+}
+
 // query post with categories
-exports.getPostById = id => {
+exports.getPostCategoriesById = id => {
     return db.select(`${TABLES.POSTS}.*`, `${TABLES.CATEGORIES}.title as category_title`)
         .from(TABLES.POSTS)
         .leftJoin(TABLES.CATEGORIES_POSTS, `${TABLES.CATEGORIES_POSTS}.post_id`, `${TABLES.POSTS}.id`)
@@ -57,6 +61,6 @@ exports.createPostWithCategories = (postTitle, categoryTitles) => {
                 return exports.attachPostCategory(persistedPost.id, category.id);
             }));
         }).then(results => {
-            return exports.getPostById(persistedPost.id);
+            return exports.getPostCategoriesById(persistedPost.id);
         });
 };

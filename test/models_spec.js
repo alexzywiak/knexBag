@@ -57,25 +57,10 @@ describe('db models', () => {
 
         it('gets a post with all associated categories', () => {
             return models.attachPostCategory(postId, categoryId)
-                .then(() => models.getPostById(postId))
+                .then(() => models.getPostCategoriesById(postId))
                 .then((result) => {
                     assert.equal(result.title, postTitle);
                     assert.deepEqual(result.categories, [categoryTitle]);
-                });
-        });
-
-        it('creates a post associated with a list of categories', () => {
-            const newPostTitle = 'second post';
-            const newCategoryTitle = 'second category';
-            const categories = [categoryTitle, newCategoryTitle];
-
-            return models.createPostWithCategories(newPostTitle, categories)
-                .then((result) => {
-                    assert.equal(result.title, newPostTitle);
-                    assert.deepEqual(result.categories, categories);
-                    return db.select('*').from(TABLES.CATEGORIES).where('title', categoryTitle);
-                }).then(results => {
-                    assert.equal(results.length, 1);
                 });
         });
     });
