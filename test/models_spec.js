@@ -1,6 +1,7 @@
 const { assert } = require('chai');
 const { db, TABLES } = require('../db');
-const models = require('../models');
+const posts = require('../models/posts');
+const categories = require('../models/categories');
 
 const categoryTitle = 'new category';
 const postTitle = 'new post';
@@ -14,7 +15,7 @@ describe('db models', () => {
     });
 
     it('creates a new post', () => {
-        return models.createPost(postTitle)
+        return posts.createPost(postTitle)
             .then(([result]) => {
                 assert.equal(result.title, postTitle);
                 return db.select('*').from(TABLES.POSTS);
@@ -24,7 +25,7 @@ describe('db models', () => {
     });
 
     it('creates a new category', () => {
-        return models.createCategory(categoryTitle)
+        return categories.createCategory(categoryTitle)
             .then(([result]) => {
                 assert.equal(result.title, categoryTitle);
                 return db.select('*').from(TABLES.CATEGORIES);
@@ -38,15 +39,15 @@ describe('db models', () => {
         let categoryId;
         
         beforeEach(() => {
-            return models.createCategory(categoryTitle)
+            return categories.createCategory(categoryTitle)
                 .then(([category]) => {
                     categoryId = category.id;
-                    return models.createPost(postTitle);
+                    return posts.createPost(postTitle);
                 }).then(([post]) => postId = post.id);
         });
 
         it('attaches a post and a category', () => {
-            return models.attachPostCategory(postId, categoryId)
+            return posts.attachPostCategory(postId, categoryId)
                 .then(() => {
                     return db.select('*').from(TABLES.CATEGORIES_POSTS).where({
                         post_id: postId,
@@ -56,8 +57,8 @@ describe('db models', () => {
         });
 
         it('gets a post with all associated categories', () => {
-            return models.attachPostCategory(postId, categoryId)
-                .then(() => models.getPostCategoriesById(postId))
+            return posts.attachPostCategory(postId, categoryId)
+                .then(() => posts.getPostCategoriesById(postId))
                 .then((result) => {
                     assert.equal(result.title, postTitle);
                     assert.deepEqual(result.categories, [categoryTitle]);

@@ -1,7 +1,8 @@
 const { assert } = require('chai');
 const { db, TABLES } = require('../db');
-const models = require('../models');
-const controller = require('../controller');
+const posts = require('../models/posts');
+const categories = require('../models/categories');
+const controller = require('../controllers/post_controller');
 
 const categoryTitle = 'new category';
 const postTitle = 'new post';
@@ -11,10 +12,10 @@ describe('db controller', () => {
     let categoryId;
 
     beforeEach(() => {
-        return models.createCategory(categoryTitle)
+        return categories.createCategory(categoryTitle)
             .then(([category]) => {
                 categoryId = category.id;
-                return models.createPost(postTitle);
+                return posts.createPost(postTitle);
             }).then(([post]) => postId = post.id);
     });
 

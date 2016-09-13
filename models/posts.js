@@ -1,23 +1,15 @@
-const { db, createTrxFunc, TABLES } = require('./db');
-
-// create category
-exports.createCategory = (title, existingTransaction) => {
-    return db.insert({ title }).into(TABLES.CATEGORIES).returning('*');
-};
+const { db, TABLES } = require('../db');
+const { createCategory, getCategoriesByTitleList } = require('./categories');
 
 // create post
-exports.createPost = (title, existingTransaction) => {
+exports.createPost = title => {
     return db.insert({ title }).into(TABLES.POSTS).returning('*');
 };
 
 // attach category to post
-exports.attachPostCategory = (postId, categoryId, existingTransaction) => {
+exports.attachPostCategory = (postId, categoryId) => {
     return db.insert({ post_id: postId, category_id: categoryId }).into(TABLES.CATEGORIES_POSTS).returning('*');
 };
-
-exports.getCategoriesByTitleList = (titleList) => {
-    return db.select('*').from(TABLES.CATEGORIES).whereIn('title', titleList);
-}
 
 // query post with categories
 exports.getPostCategoriesById = id => {
@@ -50,7 +42,7 @@ exports.createPostWithCategories = (postTitle, categoryTitles) => {
             persistedCategories = existingCategories;
             const unpersistedCategories = categoryTitles.filter(category => persistedCategories.map(p => p.title).indexOf(category) === -1);
             return Promise.all(unpersistedCategories.map(category => {
-                return exports.createCategory(category);
+                return createCategory(category);
             }));
         }).then(([newCategories]) => {
             persistedCategories = persistedCategories.concat(newCategories);
